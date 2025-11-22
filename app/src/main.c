@@ -126,11 +126,13 @@ static inline uint8_t pot_val_norm(uint16_t raw_val) {
     return value_norm;
 }
 
+#define POTS_AMOUNT 5
+
 static void send_pot_vals(int *idxs, uint16_t *vals, int count) {
-    static uint8_t pot_idx_mapping[6] = {5, 3, 1, 6, 4, 2};
+    static uint8_t pot_idx_mapping[POTS_AMOUNT] = {4, 1, 5, 2, 3};
 
     // Worst case: 1 header + count * (1 ts + 3 MIDI)
-    uint8_t packet[1 + 6 * 4];
+    uint8_t packet[1 + POTS_AMOUNT * 4];
     int offset = 0;
 
     uint16_t timestamp = 0;  // use k_uptime_get if ever needed
@@ -157,15 +159,15 @@ static void send_pot_vals(int *idxs, uint16_t *vals, int count) {
 }
 
 static void send_all_pot_vals(uint16_t *vals) {
-    int idxs[6] = {0, 1, 2, 3, 4, 5};
-    send_pot_vals(idxs, vals, 6);
+    int idxs[POTS_AMOUNT] = {0, 1, 2, 3, 4};
+    send_pot_vals(idxs, vals, POTS_AMOUNT);
 }
 
 static void send_pot_val(int idx, uint16_t val) {
     send_pot_vals(&idx, &val, 1);
 }
 
-#define POTS_AMOUNT 6
+
 
 static bool sent_initial_vals = false;
 static const struct device *pots;
@@ -214,7 +216,6 @@ static void pots_data_task(struct k_work *work) {
     bool changed = false;
 
     for (uint8_t i = 0; i < POTS_AMOUNT; i++) {
-        if (i == 3) continue;  // ignore pot 3 as it is NC
         if (abs(curr_pot_vals[i] - prev_pot_vals[i]) > params.minimum_change) {
             if(sent_initial_vals) send_pot_val(i, curr_pot_vals[i]);
             prev_pot_vals[i] = curr_pot_vals[i];
