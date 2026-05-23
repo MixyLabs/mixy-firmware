@@ -43,9 +43,7 @@ static int pots_read(const struct device *dev, uint16_t *sample_buf) {
         if (ret < 0) return ret;
     }
 
-    // mitigation for a probable nrfx_saadc bug
-    // resulting in periperal/CPU not going to sleep after multi channel read
-    nrfx_saadc_abort();
+    gpio_pin_set_dt(&config->mux, 0);
 
     ext_power_set_state(ext_power_dev, 0);
     return 0;
@@ -72,7 +70,7 @@ static int pots_init(const struct device *dev) {
             .gain = ADC_GAIN_1_6,
             .reference = ADC_REF_INTERNAL,
             .acquisition_time = ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40),
-            .input_positive = config->adc_specs[i].channel_id + 1,
+            .input_positive = config->adc_specs[i].channel_id,
         };
         ret = adc_channel_setup(config->adc_specs[i].dev, &channel_cfg);
         if (ret < 0) return -ENODEV;

@@ -17,13 +17,14 @@ LOG_MODULE_REGISTER(ble_midi, CONFIG_APP_LOG_LEVEL);
 
 static void (*ble_midi_started_cb)(void);
 static bool ble_midi_started = false;
+uint8_t notification_enabled = false;
 
 static struct pots_params params;
 static bool params_changed = false;
 
 static void htmc_ccc_cfg_changed(const struct bt_gatt_attr *attr,
                                  uint16_t value) {
-    uint8_t notification_enabled = (value == BT_GATT_CCC_NOTIFY) ? 1 : 0;
+    notification_enabled = (value == BT_GATT_CCC_NOTIFY) ? 1 : 0;
     LOG_DBG("MIDI Notifications %s",
             notification_enabled ? "enabled" : "disabled");
 
@@ -34,7 +35,7 @@ static void htmc_ccc_cfg_changed(const struct bt_gatt_attr *attr,
 
 ssize_t midi_read_char(struct bt_conn *conn, const struct bt_gatt_attr *attr,
                        void *buf, uint16_t len, uint16_t offset) {
-    if (!ble_midi_started) {
+    if (!ble_midi_started && notification_enabled) {
         ble_midi_started = true;
         if (ble_midi_started_cb) ble_midi_started_cb();
         LOG_DBG("MIDI started");

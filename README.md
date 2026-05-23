@@ -33,5 +33,5 @@ west flash
 Bootloader reset interface can be enabled with additional USB config:
 
 ```shell
-west build -b nice_nano_v2 app -- -DEXTRA_CONF_FILE=log.conf
+west build -b nice_nano_v2 app -- -DEXTRA_CONF_FILE=usb.conf
 ```

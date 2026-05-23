@@ -4,6 +4,7 @@
 #include <zephyr/devicetree.h>
 #include <zephyr/drivers/adc.h>
 #include <zephyr/drivers/sensor.h>
+#include <zephyr/dt-bindings/adc/nrf-saadc.h>
 #include <zephyr/logging/log.h>
 
 #include "battery_common.h"
@@ -87,7 +88,7 @@ static int vddh_init(const struct device *dev) {
         .gain = ADC_GAIN_1_6,
         .reference = ADC_REF_INTERNAL,
         .acquisition_time = ADC_ACQ_TIME(ADC_ACQ_TIME_MICROSECONDS, 40),
-        .input_positive = SAADC_CH_PSELP_PSELP_VDDHDIV5,
+        .input_positive = NRF_SAADC_VDDHDIV5,
     };
 
 #else
